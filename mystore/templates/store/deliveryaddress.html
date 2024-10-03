@@ -1,0 +1,40 @@
+{%extends 'store/base.html'%}
+
+{%load static%}
+
+{%block main_block%}
+
+
+<div class="card mb-3" style="max-width: 100%;">
+    <div class="row g-0">
+      <div class="col-md-8">
+        <img src="{%static 'images\delivery.jpg'%}" class="img-fluid rounded-start" alt="">
+      </div>
+      <div class="col-md-4">
+        <div class="card-body">
+            <form action="{% url 'delivery-address' %}" method="post" style="height: 100%; width:100%;">
+                <h2 class="text-center text-green-800 p-1 ">Enter Your Delivery Address Here!</h2>
+                {% csrf_token %}
+                {{ form }}
+                <button class="mt-4 w-full text-center rounded-sm bg-green-400 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black" type="submit">Continue</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{%endblock%}
+
+
+
+
+
+
+
+
+
+
+
+
+

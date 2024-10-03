@@ -1,0 +1,31 @@
+{%extends 'store/base.html'%}
+
+{%block main_block%}
+
+<br>
+<h2 class="text-center text-green-800">Put Your Delivery Address Here!</h2>
+<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+
+    <div class="card mb-3 border border-3 shadow rounded-md" style="width: 700px; height:620px">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card-body">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                        <button class="btn btn-primary" type="submit">Continue</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+</div>
+
+
+{%endblock%}
+
