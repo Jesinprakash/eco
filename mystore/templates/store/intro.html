@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+<body background="mystore\static\images\bg_image.jpg"><br>
+
+    
+<center>
+
+    <h2 class="font-bold text-black"> Hello Welocome!!!{{request.user}} </h2>
+
+</center></b><br>
+
+<h5>
+    Welcome to our organic products marketplace, your one-stop destination for premium organic goods that promote
+    health, sustainability, and ethical consumption. Our web application offers a wide range of carefully sourced
+    organic products. Every product in our collection is free from synthetic chemicals, pesticides, GMOs, and artificial
+    additives,
+    ensuring that you can shop with confidence knowing you're making choices that are good for both your well-being and
+    the environment.
+
+    Our platform is designed to provide a seamless and enjoyable shopping experience, with user-friendly navigation,
+    detailed product information, and easy checkout options. Whether you're committed to leading a healthier lifestyle
+    or looking to reduce your environmental footprint, we’ve curated the best organic products to meet your needs.
+
+    Explore our selection, embrace nature’s goodness, and join us on the journey towards a healthier, more sustainable
+    future.</h5><br><br>
+ <center>
+    <h2 class="text-green-900"><b>Click Here For Shopping</b></h2><br>
+    <form action="{%url 'product-list'%}">
+        <button type="submit" class="btn btn-outline-success w-50">Continue</button>
+    </form>
+
+</center>
+</body>
+</html>

@@ -74,7 +74,7 @@ class SignInView(View):
      
                  login(request,user_obj)
 
-                 return redirect("product-list")
+                 return redirect("intro")
              
              else:
                  
@@ -89,16 +89,27 @@ class UserProfileView(UpdateView):
 
     template_name="store/profile_edit.html"
 
-    success_url=reverse_lazy("index")  #this used as as redirect
+    success_url=reverse_lazy("product-list")  #this used as as redirect
     
-# @method_decorator(signin_requierd,name="dispatch")
+
 class ProductListView(View):
 
     def get(self,request,*args,**kwargs):
 
-        qs=ProductVarient.objects.all()
+        qs=Product.objects.all()
 
         return render(request,"store/productlist.html",{"products":qs})
+    
+    def post(self, request, *args, **kwargs):
+
+        selected_type_id = request.POST.get('name')
+    
+        names = Product.objects.all()
+    
+        products = Product.objects.filter(id=selected_type_id)
+    
+        return render(request, "store/productlist.html", {"names": names, "products": products})
+
 
   
 class ProductDetailView(DetailView):
@@ -154,144 +165,133 @@ class MyCartItemDeleteView(View):
     
 @method_decorator(signin_requierd,name="dispatch")
 class AddressView(View):
-    def get(self, request, *args, **kwargs):
+
+    def get(self,request,*args,**kwargs):
+        
         form_instance = DeliveryAdderssForm()
+        
+        return render(request,"store/deliveryaddress.html",{"form":form_instance})
 
-        return render(request, "store/deliveryaddress.html", {"form": form_instance})
+    def post(self,request,*args,**kwargs):
+        
+        cart_items = request.user.cart.cart_items.filter(is_order_placed = False)
 
-    def post(self, request, *args, **kwargs):
         form_instance = DeliveryAdderssForm(request.POST)
 
-        if form_instance.is_valid():
-            
-            order_summary = form_instance.save(commit=False)
-            
-            if request.user.is_authenticated:
-
-                order_summary.user_object = request.user  
-
-                order_summary.save()
-
-                payment_method = form_instance.cleaned_data.get('payment_methode')
-
-            if payment_method == 'cash_on_delivery':
-
-                cart_items=request.user.cart.cart_items.filter(is_order_placed=False) #here add products to cart_items 
-
-                order_summary_obj=OrderSummary.objects.create(                    #here create order to order summary
-
-                user_object=request.user,
-
-                total=request.user.cart.cart_total
-
-        )
-
-                for ci in cart_items:
-            
-                     order_summary_obj.productvarient_object.add(ci.productvarient_object)#here we can get the id of productvarient_obj that added to order summary_object--->productvarient_object
-
-                     ci.is_order_placed=True
-            
-                     ci.save()
-            
-                     order_summary_obj.save()
-
-                return render(request,"store/cod_delivery.html")
-                
-            return redirect('checkout') 
-          
         
-        return render(request, "store/deliveryaddress.html",{"form":form_instance})
+        if form_instance.is_valid():
+
+            data = form_instance.cleaned_data
+
+            order_summary_obj = OrderSummary.objects.create(
+            user_object = request.user,
+            total = request.user.cart.cart_total,
+            **data
+        
+        )
+          
+        for ci in cart_items:
+
+            order_summary_obj.productvarient_object.add(ci.productvarient_object)
+
+            order_summary_obj.save()
+
+        if order_summary_obj.payment_methode =='cash_on_delivery':
+
+            for ci in cart_items:
+
+                ci.is_order_placed = True
+
+                ci.save()
+                
+            return redirect('order-summary')
+        else:
+            
+            return redirect('checkout')
+    
+
+
 
 @method_decorator(signin_requierd,name="dispatch")
 class CheckOutView(View):
 
-    def get(self,request,*args,**kwargs):
+    def get(self, request, *args, **kwargs):
 
-        client=razorpay.Client(auth=(KEY_ID,KEY_SECRET))
+        client = razorpay.Client(auth=(KEY_ID,KEY_SECRET)) # Create a Razorpay client instance with your API key and secret
 
-        amount=request.user.cart.cart_total*100
+        amount=(request.user.cart.cart_total) * 100 # Calculate the amount to be paid in paise
 
-        data = { "amount": amount, "currency": "INR", "receipt": "order_rcptid_11" }
+        data={"amount":amount,"currency":"INR","receipt":"order_rcptid_11"} # Create a payment order data dictionary
 
-        payment=client.order.create(data=data)
+        payment=client.order.create(data=data) # Create a payment order using the Razorpay client
 
-        cart_items=request.user.cart.cart_items.filter(is_order_placed=False) #here add products to cart_items 
 
-        order_summary_obj=OrderSummary.objects.create(                    #here create order to order summary
+        OrderSummary.objects.filter(          # Create an order summary object
 
-            user_object=request.user,
+                           user_object=request.user,
+                           payment_methode='online_payment',
+                           order_id__isnull=True
+                           ).update(order_id=payment.get('id'))
+               
+        cart_items=request.user.cart.cart_items.filter(is_order_placed=False)
 
-            order_id=payment.get("id"),
-
-            total=request.user.cart.cart_total
-
-        )
-
+        # Associate the mobile variant objects with the order summary
         for ci in cart_items:
 
-            order_summary_obj.productvarient_object.add(ci.productvarient_object)#here we can get the id of productvarient_obj that added to order summary_object--->productvarient_object
+            ci.is_order_placed =True
 
-            order_summary_obj.save()
+            ci.save()
 
-        # for ci in cart_items:
-
-        #     ci.is_order_placed=True
-
-        #     ci.save()
-
-        order_summary_obj.save()
-
-
-
+        # Create a context dictionary to pass to the template
         context={
-
-            "key":KEY_ID,
-            "amount":data.get("amount"),
-            "currency":data.get("currency"),
-            "order_id":payment.get("id")
+            'key':KEY_ID,
+            'amount':data.get('amount'),
+            'currency':data.get('currency'),
+            'order_id':payment.get('id'),
         }
 
-        
-
-        return render(request,"store/payment.html",context)
+        return render(request,'store/payment.html',context)
     
 
 
-@method_decorator(csrf_exempt,name="dispatch")    
+@method_decorator(csrf_exempt,name="dispatch")   
 class PaymentVerificationView(View):
 
-    def post(self,request,*args,**kwargs):   #this post comes from razerpay
+    def post(self, request, *args, **kwargs):
 
+        print(request.POST)
 
-        client = razorpay.Client(auth=(KEY_ID, KEY_SECRET))  #here razorpay Authentication
+        client = razorpay.Client(auth=(KEY_ID,KEY_SECRET)) # Create a Razorpay client instance with authentication credentials
 
-        order_summary_object=OrderSummary.objects.get(order_id=request.POST.get("razorpay_order_id"))   #here we get the id this id through we can login he user here
+        order_summary_object=OrderSummary.objects.get(order_id=request.POST.get('razorpay_order_id')) # Retrieve the OrderSummary object from the database using the order_id
 
-        login(request,order_summary_object.user_object) #
+        login(request,order_summary_object.user_object) # Log in the user associated with the order summary object
 
         try:
 
-            client.utility.verify_payment_signature(request.POST)
+            client.utility.verify_payment_signature(request.POST) # Verify the payment signature using the Razorpay client
 
-            print("payment success")
+            print('Payment Successfully verified')
 
-            order_id=request.POST.get("razorpay_order_id")
+            # Update the OrderSummary object to mark the payment as paid
+            order_id = request.POST.get('razorpay_order_id')
 
             OrderSummary.objects.filter(order_id=order_id).update(is_paid=True)
 
+            # Update the cart items to mark them as ordered
             cart_items=request.user.cart.cart_items.filter(is_order_placed=False)
-
-            for ci in cart_items:
-
-                ci.is_order_placed=True
-    
-                ci.save()
+            
+            for m in cart_items:
+                
+                m.is_order_placed=True
+                
+                m.save()
+            
         except:
 
-                print("payment failed")
-                
-        return render(request,'store/success.html')
+            print('Payment Failed') # Print an error message if the verification fails
+
+        return redirect('order-summary')
 
         
 @method_decorator(signin_requierd,name="dispatch")
@@ -351,13 +351,30 @@ class ProductDropDownView(View):
 
         def get(self,request,*args,**kwargs):
 
-           id=kwargs.get("pk")
+           category=request.GET.get("category")
 
-           product_obj=get_object_or_404(Product,id=id)
-
-           qs=ProductVarient.objects.filter(product_object=product_obj)
+           qs=Product.objects.filter(category=category)
 
            return render(request,"store/product_drop_down.html",{"products":qs})
+        
+class IntroductionView(TemplateView):
+
+    template_name="store/intro.html"
+
+
+class ProductCategoryView(View):
+
+    def get(self,request,*args,**kwargs):
+
+        qs=Product.objects.all()
+
+        return render(request,"store/base.html",{"name":qs})
+
+
+
+
+
+
 
 
 

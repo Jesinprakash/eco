@@ -30,11 +30,11 @@ urlpatterns = [
 
     path('register/',views.SignUpView.as_view(),name="register"),
 
-    path('',views.SignInView.as_view(),name="signin"),
+    path('signin/',views.SignInView.as_view(),name="signin"),
 
     path('profile_edit/<int:pk>/change/',views.UserProfileView.as_view(),name="profile-edit"),
 
-    path('productlist/',views.ProductListView.as_view(),name="product-list"),
+    path('',views.ProductListView.as_view(),name="product-list"),
 
     path('product_detail/<int:pk>/',views.ProductDetailView.as_view(),name="product-detail"),
 
@@ -58,7 +58,15 @@ urlpatterns = [
 
     path('signout',views.SignOutView.as_view(),name="signout"),
 
-    path('product/<int:pk>/dropdown/',views.ProductDropDownView.as_view(),name="dropdown"),
+    path('product/dropdown/',views.ProductDropDownView.as_view(),name="dropdown"),
+
+    path('intro/',views.IntroductionView.as_view(),name="intro"),
+
+    path("category/all/",views.ProductCategoryView.as_view(),name="category")
+
+    
+
+   
 
 
 

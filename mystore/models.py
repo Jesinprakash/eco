@@ -39,7 +39,7 @@ class Brand(models.Model):
     def __str__(self):
 
         return self.brand_name
-    
+
 class Product(models.Model):
 
     product_name=models.CharField(max_length=200)
@@ -58,19 +58,11 @@ class Product(models.Model):
 
     is_active=models.BooleanField(default=True)
 
-
     def __str__(self):
         return self.product_name
     
-# class ProductQuantity(models.Model):
+  
 
-#     qty_object=models.CharField(max_length=200,null=True)
-
-#     created_date=models.DateTimeField(auto_now_add=True)
-
-#     updated_date=models.DateTimeField(auto_now=True)
-
-#     is_active=models.BooleanField(default=True)
 
 
     
@@ -158,7 +150,7 @@ class OrderSummary(models.Model):
         ("cash_on_delivery","cash_on_delivery")
     )
 
-    payment_methode=models.CharField(max_length=200,choices=payment_option,null=True)
+    payment_methode=models.CharField(max_length=200,choices=payment_option,default="online_payment")
 
     is_paid=models.BooleanField(default=False)
 

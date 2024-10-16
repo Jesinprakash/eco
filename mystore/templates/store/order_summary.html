@@ -37,6 +37,11 @@
           <div class="text-sm font-medium text-gray-700">₹{{o.total}}</div>
         </div>
         <div class="mb-4">
+          <div class="text-sm font-semibold">Delivery Address</div>
+          <div class="text-sm font-medium text-gray-700">₹{{o.delivery_address}}</div>
+        </div>
+       
+        <div class="mb-4">
           <div class="text-sm font-semibold">Order Status</div>
           <div class="text-sm font-medium text-gray-700">
             {%if o.is_paid%}
@@ -45,7 +50,7 @@
 
             {%else%}
 
-            <b> payment failed </b>
+            <b> payment pending </b>
 
             {%endif%}
           </div>
@@ -61,7 +66,7 @@
         <li class="flex flex-col justify-between space-x-5 py-7 md:flex-row">
           <div class="flex flex-1 items-stretch">
             <div class="flex-shrink-0">
-              <img class="h-20 w-20 rounded-lg border border-gray-200 object-contain"
+              <img class="h-40 w-40 rounded-lg border border-gray-200 object-contain"
                 src="{{pv.product_object.product_pic.url}}" alt="" />
             </div>
             <div class="ml-5 flex flex-col justify-between">
@@ -99,10 +104,12 @@
       </ul>
       <hr class="my-8 border-t border-t-gray-200" />
       <div class="space-x-4">
-        <button type="button"
+        
+        <a href="" type="button"
           class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
-          View Order
-        </button>
+          View Invoice
+        </a>
+        
         <a href="{%url 'product-list'%}" type="button"
           class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
           Back To Shopping

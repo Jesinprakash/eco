@@ -80,6 +80,13 @@ class ReviewForm(forms.ModelForm):
 
             fields=["comment","rating"]
 
+            widgets={
+
+                "comment":forms.Textarea(attrs={'class':'form-control border  mb-2','rows':3}),
+
+                "rating":forms.TextInput(attrs={'class':'border dark'})
+            }
+
 
 
 
